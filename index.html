@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Traffic Control System</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-traffic-light"></i> Smart Traffic Control System</h1>
+            <p class="subtitle">Real-time Monitoring & Analytics Dashboard</p>
+        </header>
+
+        <main>
+            <div class="dashboard">
+                <!-- Left Column: Traffic Light and Controls -->
+                <div class="left-column">
+                    <div class="traffic-light-container">
+                        <div class="traffic-light-housing">
+                            <div class="light red" id="red">
+                                <div class="glow"></div>
+                            </div>
+                            <div class="light yellow" id="yellow">
+                                <div class="glow"></div>
+                            </div>
+                            <div class="light green" id="green">
+                                <div class="glow"></div>
+                            </div>
+                        </div>
+                        <div class="pedestrian-signal">
+                            <div class="walk-signal" id="walkSignal">
+                                <i class="fas fa-person-walking"></i>
+                            </div>
+                            <div class="stop-signal" id="stopSignal">
+                                <i class="fas fa-hand"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls-panel">
+                        <div class="control-group">
+                            <button class="pedestrian-btn" type="button" id="pedestrianBtn">
+                                <i class="fas fa-person-walking"></i>
+                                <span>Request Crossing</span>
+                                <div class="btn-pulse"></div>
+                            </button>
+                            <div class="btn-info">
+                                <i class="fas fa-info-circle"></i>
+                                Press button or Space key to request crossing
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <button class="suspend-btn" type="button" id="suspendBtn">
+                                <i class="fas fa-pause"></i>
+                                <span>Suspend System</span>
+                            </button>
+                            <div class="btn-info">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Temporarily stops traffic light cycling
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <button class="reset-btn" type="button" id="resetBtn">
+                                <i class="fas fa-redo"></i>
+                                <span>Reset System</span>
+                            </button>
+                            <div class="btn-info">
+                                <i class="fas fa-history"></i>
+                                Reset all statistics and graphs
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column: Status and Info -->
+                <div class="middle-column">
+                    <div class="status-card">
+                        <h3><i class="fas fa-info-circle"></i> System Status</h3>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="statusDot"></span>
+                            <span id="state" class="status-text">Initializing...</span>
+                        </div>
+                        
+                        <div class="system-info">
+                            <div class="info-row">
+                                <i class="fas fa-clock"></i>
+                                <span>Current Timer:</span>
+                                <span id="timer" class="timer-value">--</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-history"></i>
+                                <span>System Uptime:</span>
+                                <span id="uptime" class="timer-value">00:00</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-arrows-alt-h"></i>
+                                <span>Cycle Progress:</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="cycleProgress"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #4CAF50;">
+                                <i class="fas fa-walking"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>Pedestrian Requests</h4>
+                                <p class="stat-value" id="requestCount">0</p>
+                                <p class="stat-change" id="requestsRate">Today: 0</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #FF9800;">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>Traffic Cycles</h4>
+                                <p class="stat-value" id="cycleCount">0</p>
+                                <p class="stat-change" id="cycleTime">Avg: --s</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #2196F3;">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>State Changes</h4>
+                                <p class="stat-value" id="stateChanges">0</p>
+                                <p class="stat-change">Last: <span id="lastChange">--:--</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #9C27B0;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>System Health</h4>
+                                <p class="stat-value" id="systemHealth">100%</p>
+                                <p class="stat-change">Status: <span id="systemStatus">Normal</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Graphs -->
+                <div class="right-column">
+                    <div class="graph-container">
+                        <div class="graph-header">
+                            <h3><i class="fas fa-chart-bar"></i> Traffic Light State Distribution</h3>
+                            <div class="time-selector" id="timeSelector">
+                                <button class="time-btn active" data-range="5m">5m</button>
+                                <button class="time-btn" data-range="15m">15m</button>
+                                <button class="time-btn" data-range="1h">1h</button>
+                            </div>
+                        </div>
+                        <canvas id="stateChart"></canvas>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color triangle-red"></span>
+                                <span>Red (Stop)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color triangle-yellow"></span>
+                                <span>Yellow (Prepare)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color triangle-green"></span>
+                                <span>Green (Go)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="graph-container">
+                        <div class="graph-header">
+                            <h3><i class="fas fa-users"></i> Pedestrian Activity</h3>
+                            <div class="view-selector" id="viewSelector">
+                                <button class="view-btn active" data-view="requests">Requests</button>
+                                <button class="view-btn" data-view="waiting">Wait Times</button>
+                            </div>
+                        </div>
+                        <canvas id="pedestrianChart"></canvas>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color circle-requests"></span>
+                                <span>Requests</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color circle-wait"></span>
+                                <span>Avg Wait Time</span>
+                            </div>
+                        </div>
+                        <div class="chart-stats">
+                            <div class="chart-stat">
+                                <span>Peak Hour:</span>
+                                <span id="peakHour">--:--</span>
+                            </div>
+                            <div class="chart-stat">
+                                <span>Avg Wait:</span>
+                                <span id="avgWait">--s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suspension Modal -->
+            <div class="modal" id="suspensionModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> System Suspension</h3>
+                        <button class="close-btn" type="button" id="closeModalBtn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="suspensionMessage">The system is about to be suspended. Traffic lights will stop cycling.</p>
+                        <div class="suspension-controls">
+                            <div class="duration-control">
+                                <label for="suspendDuration">Duration (minutes):</label>
+                                <input type="range" id="suspendDuration" min="1" max="30" value="5">
+                                <span id="durationValue">5 min</span>
+                            </div>
+                            <div class="state-control">
+                                <label>Set lights to:</label>
+                                <div class="state-options" id="stateOptions">
+                                    <button class="state-option" type="button" data-state="red">
+                                        <div class="light-option red"></div>
+                                        <span>Red</span>
+                                    </button>
+                                    <button class="state-option" type="button" data-state="yellow">
+                                        <div class="light-option yellow"></div>
+                                        <span>Yellow</span>
+                                    </button>
+                                    <button class="state-option" type="button" data-state="green">
+                                        <div class="light-option green"></div>
+                                        <span>Green</span>
+                                    </button>
+                                    <button class="state-option" type="button" data-state="flashing">
+                                        <div class="light-option flashing"></div>
+                                        <span>Flashing</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn cancel" type="button" id="cancelModalBtn">Cancel</button>
+                        <button class="modal-btn confirm" type="button" id="confirmSuspendBtn">Confirm Suspension</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p><i class="fas fa-shield-alt"></i> Smart Traffic System v3.0</p>
+                    <p class="system-status">
+                        <span id="connectionStatus">Connected</span>
+                        <span class="status-dot online"></span>
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <p class="last-update">
+                        <i class="fas fa-sync-alt"></i>
+                        Last updated: <span id="lastUpdate">--:--:--</span>
+                    </p>
+                    <p class="data-info">
+                        <i class="fas fa-database"></i>
+                        Data points: <span id="dataPoints">0</span>
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
